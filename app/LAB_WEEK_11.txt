@@ -1,0 +1,70 @@
+ASSIGNMENT
+Answer these questions based on Part 3 of the tutorial:
+1. When a user takes a picture, that picture is stored in a path based on the given
+URI. In which part of the code handles this? (Copy that part of the code as the
+answer)
+2. In your FileInfo.kt, there are 5 attributes. On the first attribute, what does the URI
+refer to? And on the fourth attribute, what does relativePath refer to?
+3. [Bonus] Explain the chronological order from when a user takes a picture until
+the file is stored in the MediaStore.
+
+
+Jawaban:
+1. Bagian kode yang menangani penyimpanan file setelah user mengambil foto/video
+
+Foto:
+
+takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+    if (success) {
+        providerFileManager.insertImageToStore(photoInfo)
+    }
+}
+
+
+Video:
+
+takeVideoLauncher = registerForActivityResult(ActivityResultContracts.CaptureVideo()) { success ->
+    if (success) {
+        providerFileManager.insertVideoToStore(videoInfo)
+    }
+}
+
+
+
+2. Penjelasan atribut FileInfo.kt
+data class FileInfo(
+    val uri: Uri,
+    val file: File,
+    val name: String,
+    val relativePath: String,
+    val mimeType: String
+)
+
+
+• uri:
+URI FileProvider — yaitu alamat sementara yang dibuat sebelum file masuk ke MediaStore. URI ini digunakan kamera untuk menyimpan foto/video sementara.
+
+• relativePath:
+Folder penyimpanan di dalam MediaStore, misalnya:
+
+Pictures/ untuk foto
+
+Movies/ untuk video
+
+Digunakan Android untuk menentukan lokasi akhir file di penyimpanan publik.
+
+3. Alur foto dari diambil sampai tersimpan :
+
+1. Aplikasi membuat file sementara + URI melalui generatePhotoUri().
+
+2. URI yang digenerte ini diberikan ke kamera melalui takePictureLauncher.launch(uri).
+
+3. Kamera menulis file ke lokasi sementara tersebut.
+
+4. Setelah sukses, kode akan menmanggil insertImageToStore().
+
+5. Di dalamnya, aplikasi membuat entri MediaStore → insert().
+
+6. File sementara disalin ke MediaStore melalui copyTo().
+
+7 .MediaStore menyimpan file ke folder publik (Pictures/ atau Movies/).
